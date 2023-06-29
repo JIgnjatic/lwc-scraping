@@ -1,16 +1,14 @@
 public with sharing class YahooFinanceScraping {
+
+    //we have 2 givenDate params since yahoo historical requires 2 time points
+    // the second param is +1 day due to Yahoo not rendering if they are the same
     @AuraEnabled
-    public static List<YahooFinanceScraping.YahooFinanceHTMLWrapper> scrapeHTML(List<String> tickers, String givenDateMiliseconds, String givenDateMilisecondsPlusOneDay) {
+    public static List<YahooFinanceHTMLWrapper> scrapeHTML(List<String> tickers, String givenDateMiliseconds, String givenDateMilisecondsPlusOneDay) {
 
         System.debug('tickers: ' + tickers);
 
-        System.debug(givenDateMiliseconds);
-        System.debug(givenDateMilisecondsPlusOneDay);
-
         List<YahooFinanceHTMLWrapper> yahooTickerWrapperList = new List<YahooFinanceHTMLWrapper>();
 
-        
-      
         for(String ticker : tickers){
 
             String stockUrl = 'https://finance.yahoo.com/quote/' + ticker+ '/history?period1='+ givenDateMiliseconds +'&period2='+ givenDateMilisecondsPlusOneDay +'&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true';
@@ -33,7 +31,6 @@ public with sharing class YahooFinanceScraping {
 
         YahooFinanceHTMLWrapper yfw = new YahooFinanceHTMLWrapper();
         HttpResponse response;
-
 
         for(Integer i=0; i<3; i++){
 
@@ -65,19 +62,27 @@ public with sharing class YahooFinanceScraping {
         }
 
         return yfw;
-
     }
 
-    //method to insert the stock data
+
+    //todo:
+    //perform duplicate checks prior to making callouts
+    @AuraEnabled
+    public static List<String> verifyDuplicates(List<String> tickers, Date givenDate){
+        try {
+            //if ticker has data for the given date, return string with tickers that already have data
+            // should I return the data as well?
+            
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
    
 
     @AuraEnabled
     public static List<YahooLWCResponse> insertStockData(String stockDataList){
         
-        System.debug('stockDataList: ' + stockDataList);
-
         List<YahooLWCResponse> ywrList = (List<YahooLWCResponse>) JSON.deserialize(stockDataList, List<YahooLWCResponse>.class);
-
         List<Scraped_Data__c> stockList = new List<Scraped_Data__c>();
 
         for(YahooLWCResponse ywr : ywrList){
@@ -98,23 +103,10 @@ public with sharing class YahooFinanceScraping {
         }
 
         try {
-            Database.SaveResult[] results = Database.insert(stockList, false);
-            Set<ID> stockIds = new Set<ID>();
-            for(Integer i=0; i<results.size(); i++){
-                Database.SaveResult sr = results[i];
-                if(sr.isSuccess()){
-                    ywrList[i].id = sr.getId();
-                    stockIds.add(sr.getId());
-                }else {
-                    Database.Error err = sr.getErrors()[0];
-                    ywrList[i].success = false;
-                    ywrList[i].errorMessage = err.getMessage();
-                }
-            }
+            Database.SaveResult[] results = Database.insert(stockList, false);            
 
-            return ywrList;
-        
-
+            //we use the same wrapper to send the info back
+            return addInsertResultsToWrapper(results, ywrList);
         } catch (Exception e) {
             System.debug('Failed to insert stock data. Error: ' + e.getMessage());
             throw new AuraHandledException('Failed to insert stock data. Error: ' + e.getMessage());
@@ -122,8 +114,29 @@ public with sharing class YahooFinanceScraping {
     }
 
 
+    /////////
+    //helper methods
+    /////////
+    private static List<YahooLWCResponse> addInsertResultsToWrapper(List<Database.SaveResult> results, List<YahooLWCResponse> yahooLWCResponses ){
+
+        List<YahooLWCResponse> ylrList = new List<YahooLWCResponse>(YahooLWCResponse);
+
+        for(Integer i=0; i<results.size(); i++){
+            Database.SaveResult sr = results[i];
+            if(sr.isSuccess()){
+                ylrList[i].id = sr.getId();
+            }else {
+                Database.Error err = sr.getErrors()[0];
+                ylrList[i].success = false;
+                ylrList[i].errorMessage = err.getMessage();
+            }
+        }
+
+        return ylrList;
+    }
 
 
+    
     public class YahooLWCResponse{
         @AuraEnabled
         public String ticker;
@@ -150,6 +163,7 @@ public with sharing class YahooFinanceScraping {
         @AuraEnabled
         public String errorMessage;
     }
+
 
     public class YahooFinanceHTMLWrapper {
         @AuraEnabled 
