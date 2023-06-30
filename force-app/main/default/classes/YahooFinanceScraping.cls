@@ -19,7 +19,7 @@ public with sharing class YahooFinanceScraping {
 
             List<String> urls = new List<String>{stockUrl, companyUrl, marketCapUrl};
     
-            YahooFinanceHTMLWrapper yfw = makeCallout(urls);
+            YahooFinanceHTMLWrapper yfw = YahooFinanceScrapingHelper.makeCallout(urls);
             yfw.ticker = ticker;
             yahooTickerWrapperList.add(yfw);
 
@@ -27,51 +27,17 @@ public with sharing class YahooFinanceScraping {
         return yahooTickerWrapperList;
     }
 
-    private static YahooFinanceHTMLWrapper makeCallout(List<String> urls){
-
-        YahooFinanceHTMLWrapper yfw = new YahooFinanceHTMLWrapper();
-        HttpResponse response;
-
-        for(Integer i=0; i<3; i++){
-
-            try {
-
-                HttpRequest request = new HttpRequest();
-                Http http = new Http();
-
-                request.setEndpoint(urls[i]);
-                request.setMethod('GET');
-
-                response = http.send(request);
-
-
-                if (response.getStatusCode() == 200) {
-
-                    if(i==0){
-                        yfw.stockData = response.getBody();
-                    }else if(i==1){
-                        yfw.companyInfo = response.getBody();
-                    }else if(i==2){
-                        yfw.marketCap = response.getBody();
-                    }
-                } 
-
-            } catch (Exception e) {
-                throw new AuraHandledException('Failed to retrieve HTML. Status code: ' + response.getStatusCode() + ' Response: ' + response.getBody());
-            }
-        }
-
-        return yfw;
-    }
-
 
     //todo:
     //perform duplicate checks prior to making callouts
     @AuraEnabled
-    public static List<String> verifyDuplicates(List<String> tickers, Date givenDate){
+    public static List<Stock_Data__c> verifyDuplicates(List<String> tickers, Date givenDate){
         try {
             //if ticker has data for the given date, return string with tickers that already have data
             // should I return the data as well?
+
+            List<Stock_Data__c> stockData = YahooFinanceScrapingDAO.findScrapedData(tickers,givenDate);
+            return stockData;
             
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
@@ -83,12 +49,12 @@ public with sharing class YahooFinanceScraping {
     public static List<YahooLWCResponse> insertStockData(String stockDataList){
         
         List<YahooLWCResponse> ywrList = (List<YahooLWCResponse>) JSON.deserialize(stockDataList, List<YahooLWCResponse>.class);
-        List<Scraped_Data__c> stockList = new List<Scraped_Data__c>();
+        List<Stock_Data__c> stockList = new List<Stock_Data__c>();
 
         for(YahooLWCResponse ywr : ywrList){
 
 
-            Scraped_Data__c sd = new Scraped_Data__c();
+            Stock_Data__c sd = new Stock_Data__c();
             sd.Name = ywr.ticker + ' ' + ywr.givenDate;
             sd.Ticker_Symbol__c = ywr.ticker;
             sd.Date__c = Date.valueOf(ywr.givenDate);
@@ -119,7 +85,7 @@ public with sharing class YahooFinanceScraping {
     /////////
     private static List<YahooLWCResponse> addInsertResultsToWrapper(List<Database.SaveResult> results, List<YahooLWCResponse> yahooLWCResponses ){
 
-        List<YahooLWCResponse> ylrList = new List<YahooLWCResponse>(YahooLWCResponse);
+        List<YahooLWCResponse> ylrList = new List<YahooLWCResponse>(yahooLWCResponses);
 
         for(Integer i=0; i<results.size(); i++){
             Database.SaveResult sr = results[i];
