@@ -31,11 +31,11 @@ public with sharing class YahooFinanceScraping {
     //todo:
     //perform duplicate checks prior to making callouts
     @AuraEnabled
-    public static List<Stock_Data__c> verifyDuplicates(List<String> tickers, Date givenDate){
+    public static List<Stock_Data__c> verifyDuplicates(List<String> tickers, String givenDateStr){
         try {
-            //if ticker has data for the given date, return string with tickers that already have data
-            // should I return the data as well?
-
+            
+            Date givenDate = Date.valueOf(givenDateStr);
+            
             List<Stock_Data__c> stockData = YahooFinanceScrapingDAO.findScrapedData(tickers,givenDate);
             return stockData;
             
