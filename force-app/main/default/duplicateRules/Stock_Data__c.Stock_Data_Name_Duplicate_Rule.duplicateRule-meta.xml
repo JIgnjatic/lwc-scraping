@@ -6,12 +6,12 @@
     <description>Prevents duplicate stock data</description>
     <duplicateRuleFilter xsi:nil="true"/>
     <duplicateRuleMatchRules>
-        <matchRuleSObjectType>Scraped_Data__c</matchRuleSObjectType>
-        <matchingRule>Scraped_Data_Name_Matching_Rule</matchingRule>
+        <matchRuleSObjectType>Stock_Data__c</matchRuleSObjectType>
+        <matchingRule>Stock_Data_Name_Matching_Rule</matchingRule>
         <objectMapping xsi:nil="true"/>
     </duplicateRuleMatchRules>
     <isActive>true</isActive>
-    <masterLabel>Scraped Data Name Duplicate Rule</masterLabel>
+    <masterLabel>Stock Data Name Duplicate Rule</masterLabel>
     <operationsOnInsert>Alert</operationsOnInsert>
     <operationsOnInsert>Report</operationsOnInsert>
     <operationsOnUpdate>Alert</operationsOnUpdate>
