@@ -18,10 +18,10 @@
                                 >
             </lightning-dual-listbox>
 
-            <lightning-input type="date" label="Date" value={date} onchange={handleDateChange} class="slds-m-left_x-small slds-m-right_x-small" required></lightning-input>
+            <lightning-input type="date" label="Date" value={date} max={today} onchange={handleDateChange} class="slds-m-left_x-small slds-m-right_x-small" required></lightning-input>
 
             <br>
-            <lightning-button label="Retrieve price" onclick={handleScrapeButtonClick} class="slds-m-left_x-small slds-m-right_x-small"></lightning-button>
+            <lightning-button label="Retrieve price" onclick={handleScrapeButtonClick} class="slds-m-left_x-small scrapeButton slds-m-right_x-small"></lightning-button>
         </template>
 
         <template if:true={showScrapeResults}>
