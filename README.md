@@ -28,3 +28,5 @@ It fetches a list of tickers via a list-box. After sending a list of tickers and
 - Company Address
 
 LWC also prevents the user selecting either a weekend or a US holiday.
+
+After scraping the data, we send a list to Apex to insert the data and then represent the inserted data via a lightning-datatable.
