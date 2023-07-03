@@ -1,35 +1,19 @@
-public with sharing class YahooFinanceScraping {
+public class YahooFinanceScraping {
 
     //we have 2 givenDate params since yahoo historical requires 2 time points
     // the second param is +1 day due to Yahoo not rendering if they are the same
     @AuraEnabled
-    public static List<YahooFinanceHTMLWrapper> scrapeHTML(List<String> tickers, String givenDateMiliseconds, String givenDateMilisecondsPlusOneDay) {
-
-        System.debug('tickers: ' + tickers);
-
+    public static YahooFinanceHTMLWrapper scrapeHTML(String ticker, String givenDateMiliseconds, String givenDateMilisecondsPlusOneDay) {
+        System.debug('ticker: ' + ticker);
         List<YahooFinanceHTMLWrapper> yahooTickerWrapperList = new List<YahooFinanceHTMLWrapper>();
-
-        for(String ticker : tickers){
-
-            String stockUrl = 'https://finance.yahoo.com/quote/' + ticker+ '/history?period1='+ givenDateMiliseconds +'&period2='+ givenDateMilisecondsPlusOneDay +'&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true';
-            String companyUrl = 'https://finance.yahoo.com/quote/' + ticker+ '/profile?p=' + ticker;
-            String marketCapUrl = 'https://finance.yahoo.com/quote/' + ticker+ '?p=' + ticker;
-
-            System.debug('stockUrl: ' + stockUrl);
-
-            List<String> urls = new List<String>{stockUrl, companyUrl, marketCapUrl};
     
-            YahooFinanceHTMLWrapper yfw = YahooFinanceScrapingHelper.makeCallout(urls);
-            yfw.ticker = ticker;
-            yahooTickerWrapperList.add(yfw);
-
-        }
-        return yahooTickerWrapperList;
+        YahooFinanceHTMLWrapper yfw = YahooFinanceScrapingHelper.fetchStockData(ticker, givenDateMiliseconds, givenDateMilisecondsPlusOneDay);
+        yfw.ticker = ticker;
+       
+        return yfw;
     }
+    
 
-
-    //todo:
-    //perform duplicate checks prior to making callouts
     @AuraEnabled
     public static List<Stock_Data__c> verifyDuplicates(List<String> tickers, String givenDateStr){
         try {
