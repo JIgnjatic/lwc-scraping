@@ -1,18 +1,30 @@
-# Salesforce DX Project: Next Steps
+**Yahoo Finance LWC Scraping**
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+This repository hosts a Salesforce based tool that fetches and scrapes Yahoo historical data, then inserts it into Salesforce. Why not use an Yahoo Finance API? Well, the new version of Yahoo Finanance API has limitations where it doesn't allow us to fetch the data in a streamlined way, hence, a lot of the solutions that can be fined throughout the internet utilise scraping methods. For more info see: https://www.marketdata.app/how-to-use-the-yahoo-finance-api/
 
-## How Do You Plan to Deploy Your Changes?
+**Techonologies**
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+Since this tool is hosted, we utilise front-end framework: LWC with Apex. 
 
-## Configure Your Salesforce DX Project
+**Apex Responsibilities**
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+Apex has an _AuraEnabled_ method that accepts ticker and a given date. Then it generates 3 URLs to retreive the data from:
+- historical data link (example: https://finance.yahoo.com/quote/AAPL/history?period1=1656842710&period2=1688378710&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true)
+- company data (example: https://finance.yahoo.com/quote/AAPL/profile?p=AAPL)
+- market cap (example: https://finance.yahoo.com/quote/AAPL?p=AAPL)
 
-## Read All About It
+After making a callout to these links, we place that data into a wrapper object named _YahooFinanceHTMLWrapper_, which we send back to LWC.
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+Other functionalities are duplication verification prior to making the callout.
+
+**LWC Responsibilities**
+
+It fetches a list of tickers via a list-box. After sending a list of tickers and then receiving HTML from Apex, we scrape the HTML in order to retrieve the following data:
+- Open Price
+- Close Price
+- Market Cap
+- Industry
+- Number of employees
+- Company Address
+
+LWC also prevents the user selecting either a weekend or a US holiday.
