@@ -1,0 +1,39 @@
+<template>
+
+    <lightning-card title={title}>
+
+        <lightning-spinner if:true={isLoading} alternative-text="Fetching data from Yahoo Finance"></lightning-spinner>
+    
+
+        <template if:true={showInputScreen}>
+            <lightning-dual-listbox name="languages"
+                                label="Select Tickers (at least 1 and at most 20)"
+                                options={options}
+                                min=1
+                                max=20
+                                value={selectedTickerList}
+                                onchange={handleTickerSelection} 
+                                class="slds-m-left_x-small"
+                                required
+                                >
+            </lightning-dual-listbox>
+
+            <lightning-input type="date" label="Date" value={date} max={today} onchange={handleDateChange} class="slds-m-left_x-small slds-m-right_x-small" required></lightning-input>
+
+            <br>
+            <lightning-button label="Retrieve price" onclick={handleScrapeButtonClick} class="slds-m-left_x-small scrapeButton slds-m-right_x-small"></lightning-button>
+        </template>
+
+        <template if:true={showScrapeResults}>
+                <lightning-datatable
+                    key-field="id"
+                    data={scrapedDataInsertResult}
+                    columns={columns}>
+                </lightning-datatable>
+
+                <br>
+                <lightning-button label="Input Screen" onclick={handleInputScreenButtonClick} class="slds-m-left_x-small slds-m-right_x-small "></lightning-button>
+        </template>
+
+    </lightning-card>
+</template>
