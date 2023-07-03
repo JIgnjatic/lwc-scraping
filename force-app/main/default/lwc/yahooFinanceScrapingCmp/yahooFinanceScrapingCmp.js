@@ -73,8 +73,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 	async verifyDuplicates() {
 		console.log('verifying duplicates');
-		console.log(this.date);
-
 		this.loading = true;
 
 		let duplicates = [];
@@ -97,12 +95,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 			});
 
 			return duplicates.length > 0;
-
-				
-				
-			
 	}
-
 
 	async handleScrapeButtonClick() {
 		let listBox = this.template.querySelector('lightning-dual-listbox');
@@ -127,6 +120,10 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 			console.log('selected tickers: '+this.selectedTickerList);
 
+			//caling AuraEnabled in a loop to perform callouts in different transactions
+			//to avoid hitting the heap memory limit
+			//todo:
+			//make callouts to send 4 tickers in a list to minimise duration
 			this.isLoading = true;
 			for (let i = 0; i < this.selectedTickerList.length; i++) {
 				try {
@@ -183,7 +180,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 			});
 	}
 
-
 	handleDateChange(event) {
 		this.date = event.target.value;
 		//add one more day to the date
@@ -221,7 +217,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		}
 	}
 	
-
 	//method to parse result
 	scrapeResult(){
 		this.loading = true;
@@ -234,7 +229,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 	
 				let result = this.returnResult[i];
 	
-	
 				let stockDataHtml = result.stockData;
 				let companyInfoHtml = result.companyInfo;
 				let marketCapHtml = result.marketCap;
@@ -244,7 +238,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 				const companyInfoDoc = parser.parseFromString(companyInfoHtml, 'text/html');
 				const marketCapDoc = parser.parseFromString(marketCapHtml, 'text/html');
 	
-				let stockData = stockDataDoc.querySelector("section > div.Pb\\(10px\\).Ovx\\(a\\).W\\(100\\%\\) > table > tbody > tr:nth-child(1) > td.Py\\(10px\\).Ta\\(start\\).Pend\\(10px\\) > span");
 				let openPrice = stockDataDoc.querySelector("section > div.Pb\\(10px\\).Ovx\\(a\\).W\\(100\\%\\) > table > tbody > tr:nth-child(1) > td:nth-child(2) > span");
 	
 				let closePrice = stockDataDoc.querySelector("section > div.Pb\\(10px\\).Ovx\\(a\\).W\\(100\\%\\) > table > tbody > tr:nth-child(1) > td:nth-child(5) > span");
@@ -270,6 +263,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 				});
 			}
 		} catch (error) {
+			console.log(error);
 			console.log(JSON.stringify(error));
 			this.showErrorToast(error.body);
 		}
@@ -299,10 +293,13 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 		const companyInfoString = companyInfo.toString();
 
-		const addressRegex = /(.+)<br>([^<]+), ([A-Z]{2}) (\d{5}(?:-\d{4})?)<br>([^<]+)<br>/;
+		const addressRegex = /([^<]+)<br>([^<]+)<br>([^<]+)<br>/;
 		const addressMatch = companyInfoString.match(addressRegex);
 
-		const companyAddress = addressMatch[1] + ', ' + addressMatch[2] + ', ' + addressMatch[3] + ', ' + addressMatch[4] + ', ' + addressMatch[5];
+		var companyAddress = null; 
+		if(addressMatch){
+			companyAddress = addressMatch[1] + ', ' + addressMatch[2] + ', ' + addressMatch[3];
+		}
 		console.log('companyAddress: ' + companyAddress);
 
 		return companyAddress;
@@ -317,17 +314,10 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		this.isLoading = false;
 	}
 
-	connectedCallback(){
-		console.log('connectedCallback');
-
-	}
-
 	handleTickerSelection(event) {
 		this.selectedTickerList = event.detail.value;
 		console.log('selectedTickerList: ' + this.selectedTickerList);
 	}
-
-
 
 	//method to convert date to miliseconds
 	convertDateToMiliseconds(date){
@@ -353,7 +343,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 			})
 		);
 	}
-
 
 	//isHoliday method
 	isHoliday(dateInMiliseconds){
