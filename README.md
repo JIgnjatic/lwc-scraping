@@ -2,7 +2,7 @@
 
 This repository hosts a Salesforce based tool that fetches and scrapes Yahoo historical data, then inserts it into Salesforce. Why not use an Yahoo Finance API? Well, the new version of Yahoo Finanance API has limitations where it doesn't allow us to fetch the data in a streamlined way, hence, a lot of the solutions that can be fined throughout the internet utilise scraping methods. For more info see: https://www.marketdata.app/how-to-use-the-yahoo-finance-api/
 
-**Techonologies**
+**Technologies**
 
 Since this tool is hosted, we utilise front-end framework: LWC with Apex. 
 
@@ -30,3 +30,6 @@ It fetches a list of tickers via a list-box. After sending a list of tickers and
 LWC also prevents the user selecting either a weekend or a US holiday.
 
 After scraping the data, we send a list to Apex to insert the data and then represent the inserted data via a lightning-datatable.
+
+**TODO**
+- optimise to perform the callouts faster (4 tickers per transcation)
