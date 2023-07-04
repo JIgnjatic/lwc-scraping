@@ -2,9 +2,16 @@
 
 This repository hosts a Salesforce based tool that fetches and scrapes Yahoo historical data, then inserts it into Salesforce. Why not use an Yahoo Finance API? Well, the new version of Yahoo Finanance API has limitations where it doesn't allow us to fetch the data in a streamlined way, hence, a lot of the solutions that can be fined throughout the internet utilise scraping methods. For more info see: https://www.marketdata.app/how-to-use-the-yahoo-finance-api/
 
+**Deploy changes to your org**
+
+To deploy changes to your org, you would need to right click on the source folder then SFDX:Deploy source to org
+
+![image](https://github.com/JIgnjatic/lwc-scraping/assets/81022305/18b4a95f-4054-4fe8-9815-8eb77d350733)
+ 
+
 **Technologies**
 
-Since this tool is hosted, we utilise front-end framework: LWC with Apex. 
+Since this tool is hosted on Salesforce, we utilise front-end framework LWC with back-end Apex. 
 
 **Apex Responsibilities**
 
