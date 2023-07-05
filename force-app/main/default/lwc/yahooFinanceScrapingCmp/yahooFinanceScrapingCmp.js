@@ -14,6 +14,11 @@ import TICKER_SYMBOL from '@salesforce/schema/Stock_Data__c.Ticker_Symbol__c';
 import { getPicklistValues } from 'lightning/uiObjectInfoApi';
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 
+const LIGHTNING_DUAL_BOX = 'lightning-dual-listbox';
+const VERIFICATION_ERROR_MSG = 'Please verify your input!';
+const INVALID_DATE_ERROR_MSG = 'Please input a valid date!';
+const INSERT_SUCCESS_MSG = 'Stock Data Inserted Successfully!';
+
 
 export default class YahooFinanceScrapingCmp extends LightningElement {
 
@@ -74,36 +79,33 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 	async verifyDuplicates() {
 		console.log('verifying duplicates');
 		this.loading = true;
+	  
+		try {
+			const result = await verifyDuplicates({ tickers: this.selectedTickerList, givenDateStr: this.date });
+			this.loading = false;
+			const duplicates = result.map((item) => item.Ticker_Symbol__c);
 
-		let duplicates = [];
-		
-		verifyDuplicates({ tickers: this.selectedTickerList, givenDateStr: this.date })
-		  	.then((result) => {
-				this.loading = false;
-
-				result = result.map((item) => {
-					console.log(item);
-					duplicates.push(item.Ticker_Symbol__);
-				});
-			})
-			.catch((error) => {
-				this.isLoading = false;
-				console.log('error: ' + error);
-				console.log('error: ' + JSON.stringify(error));
-				this.showErrorToast(error.body.message);
-				throw error; // rethrow the error to propagate it to the caller
-			});
-
-			return duplicates.length > 0;
-	}
+			return duplicates;
+		} catch (error) {
+			this.loading = false;
+			console.log('error: ' + error);
+			console.log('error: ' + JSON.stringify(error));
+			this.showErrorToast(error.body.message);
+			throw error; // rethrow the error to propagate it to the caller
+			}
+	  }
+	  
 
 	async handleScrapeButtonClick() {
-		let listBox = this.template.querySelector('lightning-dual-listbox');
+		let listBox = this.template.querySelector(LIGHTNING_DUAL_BOX);
+		let DUPLICATE_ERROR_MSG = 'There are duplicate tickers for the selected date: '+ this.date;
 		
 		try {
+			let duplicates = await this.verifyDuplicates();
+			let areThereDuplicates = duplicates.length > 0;
 			//verifying if there are duplicates
-			if(await this.verifyDuplicates()){
-				this.showErrorToast('There are duplicate tickers for the selected date:'+ this.date);
+			if(areThereDuplicates == true){
+				this.showErrorToast(DUPLICATE_ERROR_MSG);
 				listBox.setCustomValidity(duplicates + ' already have data for the ' + this.date + ' date.');
 				listBox.reportValidity();
 			}else{
@@ -114,7 +116,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 			//validating all input components for errors
 			if(!validate(this.template)){
-				this.showErrorToast('Please input all data');
+				this.showErrorToast(VERIFICATION_ERROR_MSG);
 				return;
 			}
 
@@ -166,7 +168,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		insertStockData({stockDataList: JSON.stringify(this.stockDataList)})
 			.then(result => {
 				this.isLoading = false;
-				this.showSuccessToast('Stock Data Inserted Successfully');
+				this.showSuccessToast(INSERT_SUCCESS_MSG);
 				this.scrapedDataInsertResult = result;
 				this.stockDataList = [];
 				this.showResults();
@@ -202,7 +204,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		console.log('isHoliday: ' + isHoliday);
 
 		if(isWeekend || isHoliday){
-			event.target.setCustomValidity('Please select a valid date.');
+			event.target.setCustomValidity(INVALID_DATE_ERROR_MSG);
 			event.target.reportValidity();
 			this.template.querySelector('lightning-button.scrapeButton').disabled = true;
 		
@@ -383,8 +385,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		let isWeekend = false;
 		let date = new Date(dateInMiliseconds);
 		let day = date.getDay();
-
-		console.log('day: ' + day);
 
 		if(day == 0 || day == 6){
 			isWeekend = true;
