@@ -1,0 +1,50 @@
+{
+  "appPageId" : "b4a352ef-b84d-4a05-ba94-c00632cefe18",
+  "componentName" : "siteforce:sldsTwoCol84Layout",
+  "dataProviders" : [ ],
+  "id" : "8df55f18-6b59-46de-a9bd-c55ad2a5ee15",
+  "label" : "Home",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : { },
+      "componentName" : "c:yahooFinanceScrapingCmp",
+      "id" : "9f278136-b4ec-454f-9c4a-8408187216f0",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "be7d611c-050e-45ed-9535-30322934dd9b",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "id" : "2a2c3bb1-bcfa-4411-9038-a7dcd4cf9c0d",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "id" : "c5387b1d-1359-4bfa-b303-b88c59d5e664",
+    "regionName" : "sidebar",
+    "type" : "region"
+  }, {
+    "id" : "5883af31-185a-4794-8143-15a00790b3a9",
+    "regionName" : "footer",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "Home"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "93097660-2205-4205-8531-496f169200db",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "bc8ae858-2511-476a-af8e-bacc73305200",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "home"
+}
