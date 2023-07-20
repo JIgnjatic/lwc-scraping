@@ -38,5 +38,12 @@ LWC also prevents the user selecting either a weekend or a US holiday.
 
 After scraping the data, we send a list to Apex to insert the data and then represent the inserted data via a lightning-datatable.
 
+**Dashboard**
+
+We can also generate reports and dashboards from the scraped data such as:
+
+<img width="964" alt="image" src="https://github.com/JIgnjatic/yahoo-lwc-scraping/assets/81022305/018898c1-3508-4a36-9be3-72af1acdb3c5">
+
+
 **TODO**
 - optimise to perform the callouts faster (4 tickers per transcation)
