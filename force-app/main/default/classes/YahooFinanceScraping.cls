@@ -37,7 +37,6 @@ public class YahooFinanceScraping {
 
         for(YahooLWCResponse ywr : ywrList){
 
-
             Stock_Data__c sd = new Stock_Data__c();
             sd.Name = ywr.ticker + ' ' + ywr.givenDate;
             sd.Ticker_Symbol__c = ywr.ticker;
@@ -67,6 +66,9 @@ public class YahooFinanceScraping {
     /////////
     //helper methods
     /////////
+
+    //creates a YahooLWCResponse list from the results list to return to LWC (because SaveResult list cannot be returned to LWC)
+    @TestVisible
     private static List<YahooLWCResponse> addInsertResultsToWrapper(List<Database.SaveResult> results, List<YahooLWCResponse> yahooLWCResponses ){
 
         List<YahooLWCResponse> ylrList = new List<YahooLWCResponse>(yahooLWCResponses);
@@ -74,6 +76,7 @@ public class YahooFinanceScraping {
         for(Integer i=0; i<results.size(); i++){
             Database.SaveResult sr = results[i];
             if(sr.isSuccess()){
+                ylrList[i].success = true;
                 ylrList[i].id = sr.getId();
             }else {
                 Database.Error err = sr.getErrors()[0];
