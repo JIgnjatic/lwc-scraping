@@ -73,7 +73,31 @@ public with sharing class YahooFinanceScrapingTests {
         System.assertEquals(true, returnResponse.success);
 
     }
-    
+
+    @isTest 
+    static void testInsertStockData(){
+
+        String stockDataList = '[{'+
+            '"ticker": "AAPL",'+
+            '"givenDate": "2023-07-25",'+
+            '"openPrice": "150.25",'+
+            '"closePrice": "155.30",'+
+            '"marketCap": "2.5T",'+
+            '"employeeNumber": "100000",'+
+            '"companyAddress": "123 Main St, City, Country",'+
+            '"industry": "Technology"'+
+          '}]';
+
+
+        List<YahooFinanceScraping.YahooLWCResponse> responseList = YahooFinanceScraping.insertStockData(stockDataList);
+
+        YahooFinanceScraping.YahooLWCResponse response = responseList[0];
+
+        System.assertEquals(true, response.success);
+        System.assertEquals('150.25', response.openPrice);
+          
+    }
+
     static String getTimeInMiliseconds(Integer day, Integer month, Integer year){
 
         DateTime givenDate = DateTime.newInstance(year, month, day);
