@@ -9,8 +9,7 @@ public with sharing class YahooFinanceScrapingHelper {
         List<String> urls = new List<String>{stockUrl, companyUrl, marketCapUrl};
     
         for (String url : urls) {
-            HttpResponse response = YahooFinanceScrapingHelper.makeCallout(url);
-    
+            HttpResponse response = makeCallout(url);
             if (response.getStatusCode() == 200) {
                 if (url == stockUrl) {
                     yfw.stockData = response.getBody();
@@ -25,7 +24,7 @@ public with sharing class YahooFinanceScrapingHelper {
         return yfw;
     }
 
-    
+    @testVisible
     private static HttpResponse makeCallout(String url) {
         HttpRequest request = new HttpRequest();
         Http http = new Http();
