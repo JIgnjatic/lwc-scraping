@@ -7,10 +7,9 @@
 
         <template if:true={showInputScreen}>
             <lightning-dual-listbox name="languages"
-                                label="Select Tickers (at least 1 and at most 20)"
+                                label="Select Tickers (at least 1)"
                                 options={options}
                                 min=1
-                                max=20
                                 value={selectedTickerList}
                                 onchange={handleTickerSelection} 
                                 class="slds-m-left_x-small"
