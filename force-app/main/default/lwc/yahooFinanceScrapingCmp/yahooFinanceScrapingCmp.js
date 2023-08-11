@@ -104,8 +104,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 				duplicates.push(item.Ticker_Symbol__c);
 			});
 	
-			console.log(JSON.stringify(duplicates));
-			console.log('duplicates.length > 0:  ' + duplicates.length > 0);
 			return duplicates; // Return the duplicates array
 	
 		} catch (error) {
@@ -162,10 +160,10 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		try {
 
 			const duplicates = await this.verifyDuplicates();
-			console.log('duplicates: ' +duplicates);
+			const hasDuplicates = duplicates.length > 0;
 
 			//verifying if there are duplicates
-			if(duplicates){
+			if(hasDuplicates){
 				listBox.setCustomValidity(duplicates + ' already have data for the ' + this.date + ' date.');
 				listBox.reportValidity();
 			}else{
