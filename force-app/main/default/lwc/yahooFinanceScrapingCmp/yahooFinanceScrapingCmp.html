@@ -6,7 +6,7 @@
     
 
         <template if:true={showInputScreen}>
-            <lightning-dual-listbox name="languages"
+            <lightning-dual-listbox
                                 label="Select Tickers (at least 1 and at most 20)"
                                 options={options}
                                 min=1
@@ -18,17 +18,49 @@
                                 >
             </lightning-dual-listbox>
 
-            <lightning-input type="date" label="Date" value={date} max={today} onchange={handleDateChange} class="slds-m-left_x-small slds-m-right_x-small" required></lightning-input>
+            <br>
+                <lightning-button class="slds-m-left_x-small" label="Select All Tickers" onclick={handleSelectAllClick} ></lightning-button>
+
+                <lightning-button class="slds-m-left_x-small" label="De-Select All Tickers" onclick={handleDeselectAllClick} ></lightning-button>
 
             <br>
+
+                <lightning-input type="date" label="Date" value={date} max={today} onchange={handleDateChange} class="slds-m-left_x-small slds-m-right_x-small" required></lightning-input>
+
+            <br>
+                <lightning-input type="checkbox" class="slds-m-left_x-small" label="Async Scrape" name="asyncScrape" onchange={handleAsyncCheckbox}></lightning-input>
+            <br>
+
             <lightning-button label="Retrieve price" onclick={handleScrapeButtonClick} class="slds-m-left_x-small scrapeButton slds-m-right_x-small"></lightning-button>
+            <lightning-button label="Check Job(s) Status" onclick={handleCheckJobStatusClick} class="slds-m-left_x-small checkJobStatus" disabled></lightning-button>
+        </template>
+
+        <template if:true={showJobResult}>
+
+            <lightning-datatable
+                    key-field="id"
+                    data={jobResults}
+                    columns={jobColumns}
+                    hide-checkbox-column
+                    >
+            </lightning-datatable>
+
+            <br>
+
+            <lightning-button label="Input Screen" onclick={handleInputScreenButtonClick} class="slds-m-left_x-small "></lightning-button>
+
+            <lightning-button label="Re-Check Job Status" onclick={handleCheckJobStatusClick} class="slds-m-left_x-small slds-m-right_x-small"></lightning-button>
+
+            <br>
         </template>
 
         <template if:true={showScrapeResults}>
                 <lightning-datatable
                     key-field="id"
                     data={scrapedDataInsertResult}
-                    columns={columns}>
+                    columns={stockColumns}
+                    hide-checkbox-column
+                    >
                 </lightning-datatable>
 
                 <br>
