@@ -90,28 +90,33 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 	async verifyDuplicates() {
 		console.log('verifying duplicates');
 		this.loading = true;
-
-		let duplicates = [];
-		
-		verifyDuplicates({ tickers: this.selectedTickerList, givenDateStr: this.date })
-		  	.then((result) => {
-				this.loading = false;
-
-				result = result.map((item) => {
-					console.log(item);
-					duplicates.push(item.Ticker_Symbol__);
-				});
-			})
-			.catch((error) => {
-				this.isLoading = false;
-				console.log('error: ' + error);
-				console.log('error: ' + JSON.stringify(error));
-				this.showErrorToast(error.body.message);
-				throw error; // rethrow the error to propagate it to the caller
+	
+		try {
+			let duplicates = [];
+	
+			const result = await verifyDuplicates({ tickers: this.selectedTickerList, givenDateStr: this.date });
+	
+			this.loading = false;
+			console.log(JSON.stringify(result));
+	
+			result.forEach((item) => {
+				console.log(item);
+				duplicates.push(item.Ticker_Symbol__c);
 			});
-
-			return duplicates.length > 0;
+	
+			console.log(JSON.stringify(duplicates));
+			console.log('duplicates.length > 0:  ' + duplicates.length > 0);
+			return duplicates; // Return the duplicates array
+	
+		} catch (error) {
+			this.isLoading = false;
+			console.log('error: ' + error);
+			console.log('error: ' + JSON.stringify(error));
+			this.showErrorToast(error.body.message);
+			throw error; // rethrow the error to propagate it to the caller
+		}
 	}
+	
 
 	asyncScrape(){
 
@@ -120,6 +125,9 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 		let dateInMiliseconds = this.convertDateToMiliseconds(this.date)/1000;		
 		let dateWithOneMoreDayInMiliseconds = this.convertDateToMiliseconds(this.dateWithOneMoreDay)/1000;
+
+		this.jobs = [];
+		this.jobResults = [];
 
 		for (let i = 0; i < this.selectedTickerList.length; i++) {
 			let ticker = this.selectedTickerList[i];
@@ -152,9 +160,12 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		let listBox = this.template.querySelector('lightning-dual-listbox');
 		
 		try {
+
+			const duplicates = await this.verifyDuplicates();
+			console.log('duplicates: ' +duplicates);
+
 			//verifying if there are duplicates
-			if(await this.verifyDuplicates()){
-				this.showErrorToast('There are duplicate tickers for the selected date:'+ this.date);
+			if(duplicates){
 				listBox.setCustomValidity(duplicates + ' already have data for the ' + this.date + ' date.');
 				listBox.reportValidity();
 			}else{
@@ -374,10 +385,8 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 					const matchingJob = this.jobResults.find(job => {
 						return job.Id.slice(0,15) === jobResID;
-						
 					});
 
-					console.log('matchingJob ' +JSON.stringify(matchingJob));
 					if (matchingJob) {
 						return {
 							Id: jobRes.Id,
