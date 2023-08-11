@@ -16,6 +16,11 @@ import TICKER_SYMBOL from '@salesforce/schema/Stock_Data__c.Ticker_Symbol__c';
 import { getPicklistValues } from 'lightning/uiObjectInfoApi';
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 
+const LIGHTNING_DUAL_BOX = 'lightning-dual-listbox';
+const VERIFICATION_ERROR_MSG = 'Please verify your input!';
+const INVALID_DATE_ERROR_MSG = 'Please input a valid date!';
+const INSERT_SUCCESS_MSG = 'Stock Data Inserted Successfully!';
+
 
 export default class YahooFinanceScrapingCmp extends LightningElement {
 
@@ -155,7 +160,8 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 	
 
 	async handleScrapeButtonClick() {
-		let listBox = this.template.querySelector('lightning-dual-listbox');
+		let listBox = this.template.querySelector(LIGHTNING_DUAL_BOX);
+		let DUPLICATE_ERROR_MSG = 'There are duplicate tickers for the selected date: '+ this.date;
 		
 		try {
 
@@ -164,6 +170,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 			//verifying if there are duplicates
 			if(hasDuplicates){
+
 				listBox.setCustomValidity(duplicates + ' already have data for the ' + this.date + ' date.');
 				listBox.reportValidity();
 			}else{
@@ -174,7 +181,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 
 			//validating all input components for errors
 			if(!validate(this.template)){
-				this.showErrorToast('Please input all data');
+				this.showErrorToast(VERIFICATION_ERROR_MSG);
 				return;
 			}
 
@@ -232,7 +239,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		insertStockData({stockDataList: JSON.stringify(this.stockDataList)})
 			.then(result => {
 				this.isLoading = false;
-				this.showSuccessToast('Stock Data Inserted Successfully');
+				this.showSuccessToast(INSERT_SUCCESS_MSG);
 				this.scrapedDataInsertResult = result;
 				this.stockDataList = [];
 				this.showResults();
@@ -275,7 +282,7 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 		console.log('isHoliday: ' + isHoliday);
 
 		if(isWeekend || isHoliday){
-			event.target.setCustomValidity('Please select a valid date.');
+			event.target.setCustomValidity(INVALID_DATE_ERROR_MSG);
 			event.target.reportValidity();
 			this.template.querySelector('lightning-button.scrapeButton').disabled = true;
 		
@@ -520,8 +527,6 @@ export default class YahooFinanceScrapingCmp extends LightningElement {
 	isWeekend(dateInMiliseconds){
 		let date = new Date(dateInMiliseconds);
 		let day = date.getDay();
-
-		console.log('day: ' + day);
 
 		if(day == 0 || day == 6){
 			return true;
