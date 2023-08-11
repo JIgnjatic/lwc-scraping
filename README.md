@@ -1,4 +1,4 @@
-**Yahoo Finance LWC Scraping**
+**Yahoo Finance Scraping**
 
 This repository hosts a Salesforce based tool that fetches and scrapes Yahoo historical data, then inserts it into Salesforce. Why not use an Yahoo Finance API? Well, the new version of Yahoo Finanance API has limitations where it doesn't allow us to fetch the data in a streamlined way, hence, a lot of the solutions that can be fined throughout the internet utilise scraping methods. For more info see: https://www.marketdata.app/how-to-use-the-yahoo-finance-api/
 
@@ -7,7 +7,11 @@ This repository hosts a Salesforce based tool that fetches and scrapes Yahoo his
 To deploy changes to your org, you would need to right click on the source folder then SFDX:Deploy source to org
 
 ![image](https://github.com/JIgnjatic/lwc-scraping/assets/81022305/18b4a95f-4054-4fe8-9815-8eb77d350733)
- 
+
+**Update 11.08.2023.**
+**Async addition**
+
+The repo also now includes a queueable class where we can scrape the data via regex. The regex and scraping is performed inside the YahooFinanceScrapingHelper.
 
 **Technologies**
 
@@ -24,6 +28,15 @@ After making a callout to these links, we place that data into a wrapper object 
 
 Other functionalities are duplication verification prior to making the callout.
 
+
+**Dashboard**
+
+We can also generate reports and dashboards from the scraped data such as:
+
+<img width="964" alt="image" src="https://github.com/JIgnjatic/yahoo-lwc-scraping/assets/81022305/018898c1-3508-4a36-9be3-72af1acdb3c5">
+
+
+
 **LWC Responsibilities**
 
 It fetches a list of tickers via a list-box. After sending a list of tickers and then receiving HTML from Apex, we scrape the HTML in order to retrieve the following data:
@@ -37,13 +50,3 @@ It fetches a list of tickers via a list-box. After sending a list of tickers and
 LWC also prevents the user selecting either a weekend or a US holiday.
 
 After scraping the data, we send a list to Apex to insert the data and then represent the inserted data via a lightning-datatable.
-
-**Dashboard**
-
-We can also generate reports and dashboards from the scraped data such as:
-
-<img width="964" alt="image" src="https://github.com/JIgnjatic/yahoo-lwc-scraping/assets/81022305/018898c1-3508-4a36-9be3-72af1acdb3c5">
-
-
-**TODO**
-- optimise to perform the callouts faster (4 tickers per transcation)
