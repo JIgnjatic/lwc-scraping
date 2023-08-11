@@ -3,16 +3,27 @@ public class YahooFinanceScraping {
     //we have 2 givenDate params since yahoo historical requires 2 time points
     // the second param is +1 day due to Yahoo not rendering if they are the same
     @AuraEnabled
-    public static YahooFinanceHTMLWrapper scrapeHTML(String ticker, String givenDateMiliseconds, String givenDateMilisecondsPlusOneDay) {
-        System.debug('ticker: ' + ticker);
+    public static YahooFinanceHTMLWrapper scrapeHTML(String ticker, String givenDateMiliseconds, String givenDateMilisecondsPlusOneDay,
+                                                    String previousWorkDayMiliseconds,String previousCloseDateMilisecondsPlusOneDay) {
         List<YahooFinanceHTMLWrapper> yahooTickerWrapperList = new List<YahooFinanceHTMLWrapper>();
     
-        YahooFinanceHTMLWrapper yfw = YahooFinanceScrapingHelper.fetchStockData(ticker, givenDateMiliseconds, givenDateMilisecondsPlusOneDay);
+        YahooFinanceHTMLWrapper yfw = YahooFinanceScrapingHelper.fetchStockData(ticker, givenDateMiliseconds, givenDateMilisecondsPlusOneDay,
+                                                                                previousWorkDayMiliseconds, previousCloseDateMilisecondsPlusOneDay);
         yfw.ticker = ticker;
        
         return yfw;
     }
-    
+
+    //we return the ID of the job so we can query it and see the live status on the front end
+    @AuraEnabled 
+    public static ID scrapeHTMLAsync(String ticker, String givenDateMiliseconds, String givenDateMilisecondsPlusOneDay, String previousWorkDayMiliseconds,
+                                    String previousWorkDayMilisecondsPlusOneDay) {
+        
+        YahooFinanceScrapeQueueable job = new YahooFinanceScrapeQueueable(ticker,givenDateMiliseconds,givenDateMilisecondsPlusOneDay,previousWorkDayMiliseconds,
+                                                                            previousWorkDayMilisecondsPlusOneDay);
+        return System.enqueueJob(job);
+    }
+        
 
     @AuraEnabled
     public static List<Stock_Data__c> verifyDuplicates(List<String> tickers, String givenDateStr){
@@ -62,6 +73,16 @@ public class YahooFinanceScraping {
         }
     }
 
+    @AuraEnabled
+    public static List<AsyncApexJob> getJobsViaIDs(List<String> jobIDs){
+        try {
+            List<AsyncApexJob> jobs = [SELECT ID, Status, ExtendedStatus, CompletedDate FROM AsyncApexJob WHERE ID IN :jobIDs];
+            return jobs;
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
 
     /////////
     //helper methods
@@ -100,6 +121,8 @@ public class YahooFinanceScraping {
         @AuraEnabled
         public String closePrice;
         @AuraEnabled
+        public String previousClosePrice;
+        @AuraEnabled
         public String marketCap;
         @AuraEnabled
         public String employeeNumber;
@@ -115,6 +138,8 @@ public class YahooFinanceScraping {
         public Boolean success;
         @AuraEnabled
         public String errorMessage;
+        @AuraEnabled
+        public String yearFounded;
     }
 
 
@@ -123,6 +148,8 @@ public class YahooFinanceScraping {
         public String ticker;
         @AuraEnabled
         public String stockData; 
+        @AuraEnabled
+        public String previousCloseDayStock;
         @AuraEnabled
         public String companyInfo; 
         @AuraEnabled
