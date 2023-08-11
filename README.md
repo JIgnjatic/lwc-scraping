@@ -13,6 +13,8 @@ To deploy changes to your org, you would need to right click on the source folde
 
 The repo also now includes a queueable class where we can scrape the data via regex. The regex and scraping is performed inside the YahooFinanceScrapingHelper.
 
+Previous Close Price is also now included when scraping the price via regex.
+
 **Technologies**
 
 Since this tool is hosted on Salesforce, we utilise front-end framework LWC with back-end Apex. 
